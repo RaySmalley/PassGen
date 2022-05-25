@@ -1,4 +1,9 @@
-Function PassGen ([Int]$Size = 12, [Char[]]$CharSets = "ULNS", [Char[]]$Exclude) {
+function pg {
+    Param(
+        [ValidateRange(1,99999)][Int]$Size = 12,
+        [ValidatePattern('[ULNS]')][Char[]]$CharSets = "ULNS",
+        [Char[]]$Exclude
+    )
     $Chars = @(); $TokenSet = @()
     If (!$TokenSets) {$Global:TokenSets = @{
         U = [Char[]]'ABCDEFGHJKLMNPQRSTUVWXYZ'
@@ -14,19 +19,8 @@ Function PassGen ([Int]$Size = 12, [Char[]]$CharSets = "ULNS", [Char[]]$Exclude)
         }
     }
     While ($Chars.Count -lt $Size) {$Chars += $TokensSet | Get-Random}
-    ($Chars | Sort-Object {Get-Random}) -Join ""                                # Mix the (mandatory) characters and output string
-}#; Set-Alias pg PassGen
-
-Function pg {
-    Param(
-        [ValidateRange(1,99999)][Int]$Size = 12,
-        [ValidatePattern('[ULNS]')][Char[]]$CharSets = "ULNS",
-        [Char[]]$Exclude
-        )
-    Process{    
-    $pw = PassGen $Size $CharSets $Exclude
-    Set-Clipboard $pw
+    $PW = ($Chars | Sort-Object {Get-Random}) -Join ""                                # Mix the (mandatory) characters
+    Set-Clipboard $PW
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
-    Write-Host "$pw"`n -ForegroundColor Red
-    }
+    Write-Host "$PW"`n -ForegroundColor Red
 }
