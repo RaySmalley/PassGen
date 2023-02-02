@@ -1,3 +1,7 @@
+### Password Generator ###
+### Ray Smalley        ###
+### 2018               ###
+
 function pg {
     Param(
         [ValidateRange(1,99999)][Int]$Size = 12,
