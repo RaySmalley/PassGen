@@ -65,9 +65,9 @@ function pgw {
     $ThirdWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4})))
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
     Write-Host $FirstWord -ForegroundColor Red -NoNewline
-    Write-Host - -NoNewline
+    Write-Host - -ForegroundColor White -NoNewline
     Write-Host $SecondWord -ForegroundColor Yellow -NoNewline
-    Write-Host - -NoNewline
+    Write-Host - -ForegroundColor White -NoNewline
     Write-Host $ThirdWord`n -ForegroundColor Green
     Set-Clipboard $FirstWord-$SecondWord-$ThirdWord
 }
