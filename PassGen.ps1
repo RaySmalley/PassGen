@@ -68,7 +68,7 @@ function pgw {
     Write-Host - -NoNewline
     Write-Host $SecondWord -ForegroundColor Yellow -NoNewline
     Write-Host - -NoNewline
-    Write-Host $ThirdWord -ForegroundColor Green
+    Write-Host $ThirdWord`n -ForegroundColor Green
     Set-Clipboard $FirstWord-$SecondWord-$ThirdWord
 }
 
@@ -81,6 +81,6 @@ function pge {
     Write-Host $FirstWord -ForegroundColor Red -NoNewline
     Write-Host $Symbol -NoNewline -ForegroundColor White
     Write-Host $SecondWord -ForegroundColor Yellow -NoNewline
-    Write-Host $Number -ForegroundColor Green
+    Write-Host $Number`n -ForegroundColor Green
     Set-Clipboard $FirstWord$Symbol$SecondWord$Number
 }
