@@ -54,15 +54,20 @@ function pg {
     }
     While ($Chars.Count -lt $Size) {$Chars += $TokensSet | Get-Random}
     $PW = ($Chars | Sort-Object {Get-Random}) -Join ""                                # Mix the (mandatory) characters
+    if (!$RunOnce) {
+        Write-Host "Tip: You can specify length and characters (Example: pg 16 LUNS)" -ForegroundColor Magenta
+    }
+    $global:RunOnce = $true
     Set-Clipboard $PW
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
     Write-Host "$PW"`n -ForegroundColor Red
+
 }
 
 function pgw {
-    $FirstWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4})))
-    $SecondWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4})))
-    $ThirdWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4})))
+    $FirstWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
+    $SecondWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
+    $ThirdWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
     Write-Host $FirstWord -ForegroundColor Red -NoNewline
     Write-Host - -ForegroundColor White -NoNewline
