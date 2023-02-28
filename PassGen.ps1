@@ -73,9 +73,9 @@ function pgw {
 }
 
 function pge {
-    $FirstWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4})))
-    $SecondWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4})))
-    $Symbol = @('@','!','#','$','%','^','&','*','-','_','=','+','|',';',':','<','>',',','.','?','/') | Get-Random
+    $FirstWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
+    $SecondWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
+    $Symbol = @('@','!','#','$','%','^','&','*','-','_','=','+',';',':','<','>','.','?','/','~') | Get-Random
     $Number = Get-Random -Minimum 0 -Maximum 10
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
     Write-Host $FirstWord -ForegroundColor Red -NoNewline
