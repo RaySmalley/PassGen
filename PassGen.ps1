@@ -32,6 +32,7 @@ function Download {
 Download -Name WordList -URL https://github.com/RaySmalley/PassGenWords/raw/main/WordList.txt
 $WordList = Get-Content $WordListOutput
 
+# Random string
 function pg {
     Param(
         [ValidateRange(1,99999)][Int]$Size = 12,
@@ -64,6 +65,7 @@ function pg {
 
 }
 
+# 3 Words
 function pgw {
     $FirstWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
     $SecondWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
@@ -77,6 +79,7 @@ function pgw {
     Set-Clipboard $FirstWord-$SecondWord-$ThirdWord
 }
 
+# Easy
 function pge {
     $FirstWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
     $SecondWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
@@ -88,4 +91,15 @@ function pge {
     Write-Host $SecondWord -ForegroundColor Yellow -NoNewline
     Write-Host $Number`n -ForegroundColor Green
     Set-Clipboard $FirstWord$Symbol$SecondWord$Number
+}
+
+# Monty Python
+Download -Name MontyPythonQuotes -URL https://github.com/RaySmalley/Packages/raw/master/monty-python-quotes.txt
+$MPQList = Get-Content $MontyPythonQuotesOutput
+
+function pgmp {
+    $Quote = $MPQList | Get-Random
+    Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
+    Write-Host $Quote`n -ForegroundColor Yellow
+    Set-Clipboard $Quote
 }
