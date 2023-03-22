@@ -29,7 +29,7 @@ function Download {
     New-Variable -Name $Name"Output" -Value $Output -Scope Global -Force
 }
 
-Download -Name WordList -URL https://github.com/RaySmalley/Packages/raw/master/WordList.txt
+Download -Name WordList -URL https://github.com/RaySmalley/Packages/raw/main/WordList.txt
 $WordList = Get-Content $WordListOutput
 
 # Random string
@@ -94,7 +94,7 @@ function pge {
 }
 
 # Monty Python
-Download -Name MontyPythonQuotes -URL https://github.com/RaySmalley/Packages/raw/master/MontyPythonQuotes.txt
+Download -Name MontyPythonQuotes -URL https://github.com/RaySmalley/Packages/raw/main/MontyPythonQuotes.txt
 $MPQList = Get-Content $MontyPythonQuotesOutput
 
 function pgmp {
