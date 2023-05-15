@@ -60,9 +60,9 @@ function pg {
     }
     $global:RunOnce = $true
     Set-Clipboard $PW
+    Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $PW" -Path $env:TEMP\PassGen.log
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
     Write-Host "$PW"`n -ForegroundColor Red
-
 }
 
 # 3 Words
@@ -70,13 +70,14 @@ function pgw {
     $FirstWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
     $SecondWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
     $ThirdWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
+    Set-Clipboard $FirstWord-$SecondWord-$ThirdWord
+    Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $FirstWord-$SecondWord-$ThirdWord" -Path $env:TEMP\PassGen.log
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
     Write-Host $FirstWord -ForegroundColor Red -NoNewline
     Write-Host - -ForegroundColor White -NoNewline
     Write-Host $SecondWord -ForegroundColor Yellow -NoNewline
     Write-Host - -ForegroundColor White -NoNewline
     Write-Host $ThirdWord`n -ForegroundColor Green
-    Set-Clipboard $FirstWord-$SecondWord-$ThirdWord
 }
 
 # Easy
@@ -85,12 +86,13 @@ function pge {
     $SecondWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
     $Symbol = @('@','!','#','$','%','^','&','*','-','_','=','+',';',':','<','>','.','?','/','~') | Get-Random
     $Number = Get-Random -Minimum 1 -Maximum 10
+    Set-Clipboard $FirstWord$Symbol$SecondWord$Number
+    Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $FirstWord$Symbol$SecondWord$Number" -Path $env:TEMP\PassGen.log
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
     Write-Host $FirstWord -ForegroundColor Red -NoNewline
     Write-Host $Symbol -NoNewline -ForegroundColor White
     Write-Host $SecondWord -ForegroundColor Yellow -NoNewline
     Write-Host $Number`n -ForegroundColor Green
-    Set-Clipboard $FirstWord$Symbol$SecondWord$Number
 }
 
 # Monty Python
@@ -99,7 +101,8 @@ $MPQList = Get-Content $MontyPythonQuotesOutput
 
 function pgmp {
     $Quote = $MPQList | Get-Random
+    Set-Clipboard $Quote
+    Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $Quote" -Path $env:TEMP\PassGen.log
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
     Write-Host $Quote`n -ForegroundColor Yellow
-    Set-Clipboard $Quote
 }
