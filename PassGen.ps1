@@ -40,7 +40,15 @@ function Download {
 Download -Name WordList -URL https://github.com/RaySmalley/Packages/raw/main/WordList.txt -Quiet -Force
 $WordList = Get-Content $WordListOutput
 
-# Random string
+# Get random word function
+function GetRandomWord {
+    do {
+        $Word = Get-Random $WordList
+    } while ($Word.Length -le 4 -or $Word.Length -ge 8)
+    return $Word
+}
+
+# Random String Password
 function pg {
     Param(
         [ValidateRange(1,99999)][Int]$Size = 12,
@@ -73,11 +81,11 @@ function pg {
     Write-Host "$PW"`n -ForegroundColor Red
 }
 
-# 3 Words
+# 3 Word Password
 function pgw {
-    $FirstWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
-    $SecondWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
-    $ThirdWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
+    $FirstWord = (Get-Culture).TextInfo.ToTitleCase($(GetRandomWord))
+    $SecondWord = (Get-Culture).TextInfo.ToTitleCase($(GetRandomWord))
+    $ThirdWord = (Get-Culture).TextInfo.ToTitleCase($(GetRandomWord))
     Set-Clipboard $FirstWord-$SecondWord-$ThirdWord
     Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $FirstWord-$SecondWord-$ThirdWord" -Path $env:TEMP\PassGen.log
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
@@ -88,10 +96,10 @@ function pgw {
     Write-Host $ThirdWord`n -ForegroundColor Green
 }
 
-# Easy
+# Easy Password
 function pge {
-    $FirstWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
-    $SecondWord = (Get-Culture).TextInfo.ToTitleCase($(Get-Random ($WordList | where {$_.Length -gt 4 -and $_.Length -lt 8})))
+    $FirstWord = (Get-Culture).TextInfo.ToTitleCase($(GetRandomWord))
+    $SecondWord = (Get-Culture).TextInfo.ToTitleCase($(GetRandomWord))
     $Symbol = @('@','!','#','$','%','^','&','*','-','_','=','+',';',':','<','>','.','?','/','~') | Get-Random
     $Number = Get-Random -Minimum 1 -Maximum 10
     Set-Clipboard $FirstWord$Symbol$SecondWord$Number
