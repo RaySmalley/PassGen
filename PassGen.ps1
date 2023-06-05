@@ -12,24 +12,31 @@ function Download {
         [Parameter(Mandatory)][string]$URL,
 	    [Parameter(Mandatory)][string]$Name,
 	    [Parameter()][string]$Filename = $(if ($URL -match "\....$") {(Split-Path $URL -Leaf)}),
-        [Parameter()][string]$OutputPath = $env:TEMP
+        [Parameter()][string]$OutputPath = $env:TEMP,
+        [Parameter()][switch]$Force
 	)
-    if (-Not($Filename)) {
+    if (!$Filename) {
         Write-Warning "Filename parameter needed. Download failed."
         Write-Host
         Break
     }
     $Output = $OutputPath + "\$Filename"
-    #$Name = $Name -csplit '(?=[A-Z])' -ne '' -join ' '
-    #Write-Host "Downloading $Name..."`n
+    $OutputName = $Name -replace ' ',''
+    $FriendlyName = $Name -replace ' ','' -csplit '(?=[A-Z])' -ne '' -join ' '
     $Error.Clear()
-    if (!(Test-Path $Output)) {(New-Object System.Net.WebClient).DownloadFile($URL, $Output)}
-    if ($Error.count -gt 0) {Write-Host "Retrying..."`n; $Error.Clear(); (New-Object System.Net.WebClient).DownloadFile($URL, $Output)}
-    if ($Error.count -gt 0) {Write-Warning "$Name download failed";Write-Host}
-    New-Variable -Name $Name"Output" -Value $Output -Scope Global -Force
+    if ($URL -match "php") {$URL = (Invoke-WebRequest $URL).Content | Select-String -Pattern "href=`"(.*/$Filename)`"" | ForEach-Object { $_.Matches.Groups[1].Value }}
+    if (!(Test-Path $Output)) {
+        Write-Host "Downloading $FriendlyName..."`n        
+        (New-Object System.Net.WebClient).DownloadFile($URL, $Output)
+        if ($Error.count -gt 0) {Write-Host "Retrying..."`n; $Error.Clear(); (New-Object System.Net.WebClient).DownloadFile($URL, $Output)}
+        if ($Error.count -gt 0) {Write-Warning "$Name download failed";Write-Host}
+    } else {
+        Write-Host "$FriendlyName already downloaded. Skipping..."`n
+    }
+    New-Variable -Name $OutputName"Output" -Value $Output -Scope Global -Force
 }
 
-Download -Name WordList -URL https://github.com/RaySmalley/Packages/raw/main/WordList.txt
+Download -Name WordList -URL https://github.com/RaySmalley/Packages/raw/main/WordList.txt -Force
 $WordList = Get-Content $WordListOutput
 
 # Random string
