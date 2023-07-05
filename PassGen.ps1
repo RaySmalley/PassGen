@@ -102,13 +102,18 @@ function pge {
     $SecondWord = (Get-Culture).TextInfo.ToTitleCase($(GetRandomWord))
     $Symbol = @('@','!','#','$','%','^','&','*','-','_','=','+',';',':','<','>','.','?','/','~') | Get-Random
     $Number = Get-Random -Minimum 1 -Maximum 10
-    Set-Clipboard $FirstWord$Symbol$SecondWord$Number
+    $Jumble = @($Number, $Symbol) | Get-Random -Count 2
+    $First = $FirstWord
+    $Second = $Jumble[0]
+    $Third = $SecondWord
+    $Fourth = $Jumble[1]
+    Set-Clipboard $First$Second$Third$Fourth
     Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $FirstWord$Symbol$SecondWord$Number" -Path $env:TEMP\PassGen.log
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
-    Write-Host $FirstWord -ForegroundColor Red -NoNewline
-    Write-Host $Symbol -NoNewline -ForegroundColor White
-    Write-Host $SecondWord -ForegroundColor Yellow -NoNewline
-    Write-Host $Number`n -ForegroundColor Green
+    Write-Host $First -ForegroundColor Red -NoNewline
+    Write-Host $Second -NoNewline -ForegroundColor White
+    Write-Host $Third -ForegroundColor Yellow -NoNewline
+    Write-Host $Fourth`n -ForegroundColor Green
 }
 
 # Monty Python
