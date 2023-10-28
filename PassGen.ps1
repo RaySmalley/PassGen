@@ -5,6 +5,9 @@
 # Disable progress bar for faster downloads
 $global:ProgressPreference = 'SilentlyContinue'
 
+# Set TLS to 1.2
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 # Download function
 function Download {
     [CmdletBinding()]
