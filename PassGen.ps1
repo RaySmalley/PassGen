@@ -1,6 +1,8 @@
 ### Password Generator ###
 ### Ray Smalley        ###
-### 2018               ###
+### Created 2018       ###
+### Updated 10.28.23   ###
+
 
 # Disable progress bar for faster downloads
 $global:ProgressPreference = 'SilentlyContinue'
