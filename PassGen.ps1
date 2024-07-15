@@ -10,6 +10,20 @@ $global:ProgressPreference = 'SilentlyContinue'
 # Set TLS to 1.2
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
+# Create an instance of the Random class
+$Random = New-Object System.Random
+
+# Define the log file path
+$LogFilePath = "$env:TEMP\PassGen.log"
+
+# Log file retention function
+function CheckLogSize {
+    # Check the size of the log file and overwrite it if it's larger than 1 MB
+    if ((Get-Item $LogFilePath).Length -gt 1MB) {
+        Clear-Content $LogFilePath
+    }
+}
+
 # Download function
 function Download {
     [CmdletBinding()]
@@ -82,17 +96,14 @@ function pg {
         $Tokens = $TokenSets."$_" | ForEach {If ($Exclude -cNotContains $_) {$_}}
         If ($Tokens) {
             $TokensSet += $Tokens
-            If ($_ -cle [Char]"Z") {$Chars[0] = $Tokens | Get-Random; $i = 1} # Character sets defined in upper case are mandatory
+            If ($_ -cle [Char]"Z") {$Chars[0] = $Tokens[$Random.Next(0, $Tokens.Count)]; $i = 1} # Character sets defined in upper case are mandatory
         }
     }
 
     # Fill the array with random characters from $TokensSet
     for (; $i -lt $Size; $i++) {
-        $Chars[$i] = $TokensSet | Get-Random
+        $Chars[$i] = $TokensSet[$Random.Next(0, $TokensSet.Count)]
     }
-
-    # Create an instance of the Random class
-    $random = New-Object System.Random
 
     # Define a function to shuffle an array
     function Shuffle-Array {
@@ -101,7 +112,7 @@ function pg {
         $n = $arr.Count
         while ($n -gt 1) {
             $n--
-            $i = $random.Next($n + 1)
+            $i = $Random.Next($n + 1)
             $temp = $arr[$i]
             $arr[$i] = $arr[$n]
             $arr[$n] = $temp
@@ -116,13 +127,20 @@ function pg {
     # Join the shuffled characters to form the password
     $PW = $Chars -Join ""
 
+    # Show top on first run
     if (!$RunOnce) {
         Write-Host "Tip: You can specify length and characters (Example: pg 16 LUNS)" -ForegroundColor Magenta
     }
-
     $RunOnce = $true
+
+    # Copy password to clipboard
     Set-Clipboard $PW
-    Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $PW" -Path $env:TEMP\PassGen.log
+
+    # Log passwords
+    CheckLogSize
+    Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $PW" -Path $LogFilePath
+    
+    # Output
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
     Write-Host "$PW"`n -ForegroundColor Red
 }
@@ -133,6 +151,7 @@ function pgw {
     $SecondWord = (Get-Culture).TextInfo.ToTitleCase($(GetRandomWord))
     $ThirdWord = (Get-Culture).TextInfo.ToTitleCase($(GetRandomWord))
     Set-Clipboard $FirstWord-$SecondWord-$ThirdWord
+    CheckLogSize
     Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $FirstWord-$SecondWord-$ThirdWord" -Path $env:TEMP\PassGen.log
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
     Write-Host $FirstWord -ForegroundColor Red -NoNewline
@@ -154,6 +173,7 @@ function pge {
     $Third = $SecondWord
     $Fourth = $Jumble[1]
     Set-Clipboard $First$Second$Third$Fourth
+    CheckLogSize
     Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $FirstWord$Symbol$SecondWord$Number" -Path $env:TEMP\PassGen.log
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
     Write-Host $First -ForegroundColor Red -NoNewline
@@ -169,6 +189,7 @@ $MPQList = Get-Content $MontyPythonQuotesOutput
 function pgmp {
     $Quote = $MPQList | Get-Random
     Set-Clipboard $Quote
+    CheckLogSize
     Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $Quote" -Path $env:TEMP\PassGen.log
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
     Write-Host $Quote`n -ForegroundColor Yellow
