@@ -138,7 +138,7 @@ function pg {
 
     # Log passwords
     CheckLogSize
-    Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $PW" -Path $LogFilePath
+    Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $PW `n" -Path $LogFilePath
     
     # Output
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
