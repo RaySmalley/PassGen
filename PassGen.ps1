@@ -56,30 +56,71 @@ function GetRandomWord {
 # Random String Password
 function pg {
     Param(
-        [ValidateRange(1,99999)][Int]$Size = 12,
+        [ValidateScript({
+            if ($_ -is [int] -and $_ -gt 0) {
+                $true
+            } else {
+                throw "The parameter Size must be a positive integer."
+            }
+        })][Int]$Size = 12,
         [ValidatePattern('[ULNS]')][Char[]]$CharSets = "ULNS",
         [Char[]]$Exclude
     )
-    $Chars = @(); $TokenSet = @()
-    If (!$TokenSets) {$Global:TokenSets = @{
+
+    # Define character sets
+    $TokenSets = @{
         U = [Char[]]'ABCDEFGHJKLMNPQRSTUVWXYZ'
         L = [Char[]]'abcdefghijkmnopqrstuvwxyz'
         N = [Char[]]'23456789'
         S = [Char[]]'!@#$%^&*()-+=.:;<>?_'
-    }}
+    }
+
+    $Chars = New-Object Char[] $Size
+    $TokensSet = @()
+
     $CharSets | ForEach {
         $Tokens = $TokenSets."$_" | ForEach {If ($Exclude -cNotContains $_) {$_}}
         If ($Tokens) {
             $TokensSet += $Tokens
-            If ($_ -cle [Char]"Z") {$Chars += $Tokens | Get-Random}             # Character sets defined in upper case are mandatory
+            If ($_ -cle [Char]"Z") {$Chars[0] = $Tokens | Get-Random; $i = 1} # Character sets defined in upper case are mandatory
         }
     }
-    While ($Chars.Count -lt $Size) {$Chars += $TokensSet | Get-Random}
-    $PW = ($Chars | Sort-Object {Get-Random}) -Join ""                                # Mix the (mandatory) characters
+
+    # Fill the array with random characters from $TokensSet
+    for (; $i -lt $Size; $i++) {
+        $Chars[$i] = $TokensSet | Get-Random
+    }
+
+    # Create an instance of the Random class
+    $random = New-Object System.Random
+
+    # Define a function to shuffle an array
+    function Shuffle-Array {
+        param([array]$arr)
+
+        $n = $arr.Count
+        while ($n -gt 1) {
+            $n--
+            $i = $random.Next($n + 1)
+            $temp = $arr[$i]
+            $arr[$i] = $arr[$n]
+            $arr[$n] = $temp
+        }
+
+        return ,$arr
+    }
+
+    # Use the Shuffle-Array function to shuffle $Chars
+    $Chars = Shuffle-Array $Chars
+
+    # Join the shuffled characters to form the password
+    $PW = $Chars -Join ""
+
     if (!$RunOnce) {
         Write-Host "Tip: You can specify length and characters (Example: pg 16 LUNS)" -ForegroundColor Magenta
     }
-    $global:RunOnce = $true
+
+    $RunOnce = $true
     Set-Clipboard $PW
     Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $PW" -Path $env:TEMP\PassGen.log
     Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
