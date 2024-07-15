@@ -1,7 +1,7 @@
 ### Password Generator ###
 ### Ray Smalley        ###
 ### Created 2018       ###
-### Updated 10.28.23   ###
+### Updated 07.15.24   ###
 
 
 # Disable progress bar for faster downloads
