@@ -1,7 +1,7 @@
 ### Password Generator ###
 ### Ray Smalley        ###
 ### Created 2018       ###
-### Updated 07.15.24   ###
+### Updated 07.24.24   ###
 
 
 # Disable progress bar for faster downloads
@@ -19,7 +19,7 @@ $LogFilePath = "$env:TEMP\PassGen.log"
 # Log file retention function
 function CheckLogSize {
     # Check the size of the log file and overwrite it if it's larger than 1 MB
-    if ((Get-Item $LogFilePath).Length -gt 1MB) {
+    if ((Get-Item $LogFilePath -ErrorAction SilentlyContinue).Length -gt 1MB) {
         Clear-Content $LogFilePath
     }
 }
