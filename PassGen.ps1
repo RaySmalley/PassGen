@@ -1,7 +1,7 @@
 ### Password Generator ###
 ### Ray Smalley        ###
-### Created 2018       ###
-### Updated 07.24.24   ###
+### Created 01.29.18   ###
+### Updated 08.01.24   ###
 
 
 # Disable progress bar for faster downloads
@@ -56,6 +56,31 @@ function Download {
     New-Variable -Name $OutputName"Output" -Value $Output -Scope Global -Force
 }
 
+# Helper function to set clipboard with retry logic
+function Set-ClipboardWithRetry {
+    param (
+        [string]$Content,
+        [int]$MaxRetries = 5,
+        [int]$DelaySeconds = 1
+    )
+
+    $RetryCount = 0
+    $Success = $false
+
+    while (-not $Success -and $RetryCount -lt $MaxRetries) {
+        try {
+            Set-Clipboard $Content
+            $Success = $true
+        } catch {
+            $RetryCount++
+            Start-Sleep -Seconds $DelaySeconds
+        }
+    }
+
+    return $Success
+}
+
+# Download the word list
 Download -Name WordList -URL https://github.com/RaySmalley/Packages/raw/main/WordList.txt -Quiet -Force
 $WordList = Get-Content $WordListOutput
 
@@ -125,24 +150,27 @@ function pg {
     $Chars = Shuffle-Array $Chars
 
     # Join the shuffled characters to form the password
-    $PW = $Chars -Join ""
+    $Password = $Chars -Join ""
 
     # Show top on first run
     if (!$RunOnce) {
         Write-Host "Tip: You can specify length and characters (Example: pg 16 LUNS)" -ForegroundColor Magenta
     }
-    $RunOnce = $true
+    $global:RunOnce = $true
 
     # Copy password to clipboard
-    Set-Clipboard $PW
-
-    # Log passwords
-    CheckLogSize
-    Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $PW `n" -Path $LogFilePath
+    $Success = Set-ClipboardWithRetry -Content $Password
+    if (-not $Success) {
+        Write-Host "Failed to set clipboard after multiple attempts. Please try again." -ForegroundColor Red
+    } else {
+        # Log passwords
+        CheckLogSize
+        Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $Password `n" -Path $LogFilePath
     
-    # Output
-    Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
-    Write-Host "$PW"`n -ForegroundColor Red
+        # Output
+        Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
+        Write-Host "$Password"`n -ForegroundColor Red
+    }
 }
 
 # 3 Word Password
@@ -150,15 +178,20 @@ function pgw {
     $FirstWord = (Get-Culture).TextInfo.ToTitleCase($(GetRandomWord))
     $SecondWord = (Get-Culture).TextInfo.ToTitleCase($(GetRandomWord))
     $ThirdWord = (Get-Culture).TextInfo.ToTitleCase($(GetRandomWord))
-    Set-Clipboard $FirstWord-$SecondWord-$ThirdWord
-    CheckLogSize
-    Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $FirstWord-$SecondWord-$ThirdWord" -Path $env:TEMP\PassGen.log
-    Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
-    Write-Host $FirstWord -ForegroundColor Red -NoNewline
-    Write-Host - -ForegroundColor White -NoNewline
-    Write-Host $SecondWord -ForegroundColor Yellow -NoNewline
-    Write-Host - -ForegroundColor White -NoNewline
-    Write-Host $ThirdWord`n -ForegroundColor Green
+    $Password = "$FirstWord-$SecondWord-$ThirdWord"
+    $Success = Set-ClipboardWithRetry -Content $Password
+    if (-not $Success) {
+        Write-Host "Failed to set clipboard after multiple attempts. Please try again." -ForegroundColor Red
+    } else {
+        CheckLogSize
+        Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $FirstWord-$SecondWord-$ThirdWord" -Path $env:TEMP\PassGen.log
+        Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
+        Write-Host $FirstWord -ForegroundColor Red -NoNewline
+        Write-Host - -ForegroundColor White -NoNewline
+        Write-Host $SecondWord -ForegroundColor Yellow -NoNewline
+        Write-Host - -ForegroundColor White -NoNewline
+        Write-Host $ThirdWord`n -ForegroundColor Green
+    }
 }
 
 # Easy Password
@@ -172,25 +205,33 @@ function pge {
     $Second = $Jumble[0]
     $Third = $SecondWord
     $Fourth = $Jumble[1]
-    Set-Clipboard $First$Second$Third$Fourth
-    CheckLogSize
-    Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $FirstWord$Symbol$SecondWord$Number" -Path $env:TEMP\PassGen.log
-    Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
-    Write-Host $First -ForegroundColor Red -NoNewline
-    Write-Host $Second -NoNewline -ForegroundColor White
-    Write-Host $Third -ForegroundColor Yellow -NoNewline
-    Write-Host $Fourth`n -ForegroundColor Green
+    $Password = $First + $Second + $Third + $Fourth
+    $Success = Set-ClipboardWithRetry -Content $Password
+    if (-not $Success) {
+        Write-Host "Failed to set clipboard after multiple attempts. Please try again." -ForegroundColor Red
+    } else {
+        CheckLogSize
+        Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $FirstWord$Symbol$SecondWord$Number" -Path $env:TEMP\PassGen.log
+        Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
+        Write-Host $First -ForegroundColor Red -NoNewline
+        Write-Host $Second -NoNewline -ForegroundColor White
+        Write-Host $Third -ForegroundColor Yellow -NoNewline
+        Write-Host $Fourth`n -ForegroundColor Green
+    }
 }
 
-# Monty Python
+# Monty Python Quote password
 Download -Name MontyPythonQuotes -URL https://github.com/RaySmalley/Packages/raw/main/MontyPythonQuotes.txt -Quiet -Force
-$MPQList = Get-Content $MontyPythonQuotesOutput
 
 function pgmp {
-    $Quote = $MPQList | Get-Random
-    Set-Clipboard $Quote
-    CheckLogSize
-    Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $Quote" -Path $env:TEMP\PassGen.log
-    Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
-    Write-Host $Quote`n -ForegroundColor Yellow
+    $Password = Get-Content $MontyPythonQuotesOutput | Get-Random
+    $Success = Set-ClipboardWithRetry -Content $Password
+    if (-not $Success) {
+        Write-Host "Failed to set clipboard after multiple attempts. Please try again." -ForegroundColor Red
+    } else {
+        CheckLogSize
+        Add-Content -Value "$(Get-Date -Format 'MM/dd/yyyy - hh:mm:ss tt'): $Password" -Path $env:TEMP\PassGen.log
+        Write-Host "Password added to clipboard: " -ForegroundColor Cyan -NoNewline
+        Write-Host $Password`n -ForegroundColor Yellow
+    }
 }
